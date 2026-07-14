@@ -67,6 +67,7 @@ paths:
     - .defaults/internal/scaffold/fullsend-repo/scripts/pre-code.sh
     - .defaults/internal/scaffold/fullsend-repo/scripts/pre-fetch-prior-review-test.sh
     - .defaults/internal/scaffold/fullsend-repo/scripts/pre-fetch-prior-review.sh
+    - .defaults/internal/scaffold/fullsend-repo/scripts/pre-fix-test.sh
     - .defaults/internal/scaffold/fullsend-repo/scripts/pre-fix.sh
     - .defaults/internal/scaffold/fullsend-repo/scripts/pre-prioritize.sh
     - .defaults/internal/scaffold/fullsend-repo/scripts/pre-retro.sh
