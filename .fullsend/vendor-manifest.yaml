@@ -3,6 +3,7 @@ cli_version: dev
 binary_path: .fullsend/bin/fullsend
 paths:
     - .defaults/.github/actions/check-e2e-authorization/action.yml
+    - .defaults/.github/actions/install-fullsend-cli/action.yml
     - .defaults/.github/actions/mint-token/action.yml
     - .defaults/.github/actions/setup-gcp/action.yml
     - .defaults/.github/actions/validate-enrollment/action.yml
@@ -67,7 +68,6 @@ paths:
     - .defaults/internal/scaffold/fullsend-repo/scripts/pre-code.sh
     - .defaults/internal/scaffold/fullsend-repo/scripts/pre-fetch-prior-review-test.sh
     - .defaults/internal/scaffold/fullsend-repo/scripts/pre-fetch-prior-review.sh
-    - .defaults/internal/scaffold/fullsend-repo/scripts/pre-fix-test.sh
     - .defaults/internal/scaffold/fullsend-repo/scripts/pre-fix.sh
     - .defaults/internal/scaffold/fullsend-repo/scripts/pre-prioritize.sh
     - .defaults/internal/scaffold/fullsend-repo/scripts/pre-retro.sh
