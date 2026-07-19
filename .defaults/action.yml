@@ -346,6 +346,7 @@ runs:
         STATUS_NUMBER: ${{ inputs.status-number }}
         RUN_ID: ${{ github.run_id }}
         RUN_URL: ${{ inputs.run-url }}
+        COMMIT_SHA: ${{ github.sha }}
         JOB_STATUS: ${{ job.status }}
       run: |
         set -euo pipefail
@@ -353,22 +354,6 @@ runs:
         # the deferred PostCompletion call never runs and the status comment
         # remains in "Started" state. This step runs unconditionally (if:
         # always()) to detect and finalize orphaned comments. See #2149.
-
-        # Resolve the correct commit SHA. In cross-repo workflow_dispatch
-        # mode, GITHUB_SHA is the config repo's SHA — not the PR head.
-        # Extract the PR head SHA from the dispatched event payload when
-        # available; fall back to GITHUB_SHA otherwise.
-        COMMIT_SHA=""
-        if [[ -f "${GITHUB_EVENT_PATH}" ]]; then
-          COMMIT_SHA=$(jq -r '
-            .inputs.event_payload // empty
-          ' "${GITHUB_EVENT_PATH}" 2>/dev/null \
-            | jq -r '.pull_request.head.sha // empty' 2>/dev/null) || true
-        fi
-        if [[ -z "${COMMIT_SHA}" ]]; then
-          COMMIT_SHA="${GITHUB_SHA}"
-        fi
-
         RECONCILE_FLAGS=(--repo "${STATUS_REPO}" --number "${STATUS_NUMBER}" --run-id "${RUN_ID}")
         RECONCILE_FLAGS+=(--mint-url "${MINT_URL}" --role "${AGENT}")
         if [[ -n "${RUN_URL}" ]]; then
