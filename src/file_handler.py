@@ -11,7 +11,7 @@ import tempfile
 BUFFER_SIZE = 65536
 
 
-def save_file(content: str, filepath: str) -> None:
+def save_file(content: str | None, filepath: str) -> None:
     """Save content to a file with proper UTF-8 encoding.
 
     Uses byte-length-aware buffering to correctly handle multibyte
@@ -46,6 +46,7 @@ def save_file(content: str, filepath: str) -> None:
     os.makedirs(dir_path, exist_ok=True)
 
     fd, tmp_path = tempfile.mkstemp(dir=dir_path)
+    fd_closed = False
     try:
         offset = 0
         while offset < len(data):
@@ -53,9 +54,11 @@ def save_file(content: str, filepath: str) -> None:
             os.write(fd, chunk)
             offset += len(chunk)
         os.close(fd)
+        fd_closed = True
         os.replace(tmp_path, filepath)
     except BaseException:
-        os.close(fd)
+        if not fd_closed:
+            os.close(fd)
         if os.path.exists(tmp_path):
             os.unlink(tmp_path)
         raise

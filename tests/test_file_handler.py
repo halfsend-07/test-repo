@@ -7,6 +7,7 @@ larger than 64KB containing multibyte characters.
 
 import os
 import tempfile
+from unittest import mock
 
 import pytest
 
@@ -160,3 +161,50 @@ class TestEdgeCases:
         filepath = os.path.join(tmp_dir, "exact.txt")
         save_file(content, filepath)
         assert load_file(filepath) == content
+
+
+class TestErrorCleanup:
+    """Verify error paths clean up temp files and propagate exceptions."""
+
+    def test_write_failure_cleans_up_temp_file(self, tmp_dir):
+        """When os.write fails, the temp file should be removed."""
+        filepath = os.path.join(tmp_dir, "fail.txt")
+        with mock.patch("src.file_handler.os.write", side_effect=OSError("disk full")):
+            with pytest.raises(OSError, match="disk full"):
+                save_file("some content", filepath)
+        # No temp files should remain in the directory
+        remaining = os.listdir(tmp_dir)
+        assert remaining == [], f"Temp files leaked: {remaining}"
+
+    def test_replace_failure_cleans_up_temp_file(self, tmp_dir):
+        """When os.replace fails after a successful write, the temp file
+        should still be cleaned up and the fd should not be double-closed."""
+        filepath = os.path.join(tmp_dir, "fail.txt")
+        with mock.patch("src.file_handler.os.replace", side_effect=OSError("permission denied")):
+            with pytest.raises(OSError, match="permission denied"):
+                save_file("some content", filepath)
+        # No temp files should remain
+        remaining = os.listdir(tmp_dir)
+        assert remaining == [], f"Temp files leaked: {remaining}"
+
+    def test_replace_failure_does_not_double_close(self, tmp_dir):
+        """Regression test: os.replace failure must not attempt to close
+        an already-closed file descriptor (the double-close bug)."""
+        filepath = os.path.join(tmp_dir, "fail.txt")
+        original_close = os.close
+        close_calls = []
+
+        def tracking_close(fd):
+            close_calls.append(fd)
+            return original_close(fd)
+
+        with mock.patch("src.file_handler.os.close", side_effect=tracking_close):
+            with mock.patch("src.file_handler.os.replace", side_effect=OSError("perm")):
+                with pytest.raises(OSError, match="perm"):
+                    save_file("test", filepath)
+
+        # The fd should be closed exactly once, not twice
+        assert len(close_calls) == 1, (
+            f"Expected fd to be closed once, but os.close was called "
+            f"{len(close_calls)} times"
+        )
