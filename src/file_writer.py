@@ -6,8 +6,6 @@ instead of byte length for buffer allocation, causing a buffer overflow
 UTF-8 characters.
 """
 
-import os
-
 # Buffer size in bytes. Buffer arithmetic must use byte length,
 # not character count, to avoid overflow with multibyte sequences.
 BUFFER_SIZE = 65536  # 64 KB
@@ -27,9 +25,6 @@ def save_file(content: str, path: str) -> None:
         path: The filesystem path to write to.
     """
     encoded = content.encode("utf-8")
-    parent = os.path.dirname(path)
-    if parent:
-        os.makedirs(parent, exist_ok=True)
 
     with open(path, "wb") as f:
         offset = 0

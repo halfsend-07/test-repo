@@ -91,6 +91,23 @@ def test_roundtrip_preserves_content():
         os.unlink(path)
 
 
+def test_save_exact_buffer_size():
+    """Save a file whose encoded size is exactly BUFFER_SIZE bytes."""
+    content = "A" * BUFFER_SIZE  # ASCII: 1 byte per char = exactly 65536 bytes
+
+    assert len(content.encode("utf-8")) == BUFFER_SIZE
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp:
+        path = tmp.name
+    try:
+        save_file(content, path)
+        with open(path, "rb") as f:
+            saved_bytes = f.read()
+        assert saved_bytes == content.encode("utf-8")
+    finally:
+        os.unlink(path)
+
+
 def test_save_small_ascii_file():
     """Small ASCII files save correctly (regression guard)."""
     content = "Hello, World!\n" * 100
