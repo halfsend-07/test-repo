@@ -29,6 +29,6 @@ def save_file(content: str, path: str) -> None:
     with open(path, "wb") as f:
         offset = 0
         while offset < len(encoded):
-            chunk = encoded[offset:offset + BUFFER_SIZE]
+            chunk = encoded[offset : offset + BUFFER_SIZE]
             f.write(chunk)
             offset += len(chunk)

@@ -108,6 +108,19 @@ def test_save_exact_buffer_size():
         os.unlink(path)
 
 
+def test_save_empty_string():
+    """Save empty content creates an empty file."""
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp:
+        path = tmp.name
+    try:
+        save_file("", path)
+        with open(path, "rb") as f:
+            saved_bytes = f.read()
+        assert saved_bytes == b""
+    finally:
+        os.unlink(path)
+
+
 def test_save_small_ascii_file():
     """Small ASCII files save correctly (regression guard)."""
     content = "Hello, World!\n" * 100
